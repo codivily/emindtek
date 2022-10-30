@@ -3,7 +3,7 @@
 npm install
 ```
 
-## Run the following script to install setup the database
+## Run the following script to setup the sqlite3 database
 ```
 npm run db-reinstall
 ```
