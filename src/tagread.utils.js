@@ -6,7 +6,7 @@ function _shouldIgnoreEpcAntennaRead(db, { epc, antenna, timestamprecv }, cb) {
                         SELECT timestamprecv
                         FROM epc_antenna_last_read 
                         WHERE epc=? AND antenna=? LIMIT 1`);
-                        
+
     stmt.get(epc, antenna, (err, row) => {
         // console.log(row);
         if (!row || timestamprecv - row.timestamprecv >= EPC_ANTENNA_READ_INTERVAL) {
@@ -38,17 +38,19 @@ function _insertTagread(db, { epc, antenna, rssi, timestampreader, timestamprecv
 }
 
 /* insert tag read or ignore */
-function insertTagread(db, { epc, antenna, rssi, timestampreader, timestamprecv }) {
+function insertTagread(db, { epc, antenna, rssi, timestampreader, timestamprecv }, cb) {
     db.serialize(() => {
         _shouldIgnoreEpcAntennaRead(db, { epc, antenna, timestamprecv }, yesOrNo => {
             if (yesOrNo === true) {
                 // console.log('ignored');
+                cb && cb();
                 return /* ignore this read */
             }
 
             /* update */
             _updateEpcAntennaLastRead(db, { epc, antenna, timestamprecv });
             _insertTagread(db, { epc, antenna, rssi, timestampreader, timestamprecv });
+            cb && cb();
         })
     })
 }
