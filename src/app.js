@@ -69,12 +69,13 @@ app.post('/', (req, res) => {
         // console.log(errors);
     }
     else {
+     
         /* insert tag */
-        insertTagread(db, { ...data });
+        insertTagread(db, { ...data }, () => {
+            dbclose();
+        });
     }
-
-    /* close database */
-    dbclose();
+    
     res.sendStatus(202);
 });
 
